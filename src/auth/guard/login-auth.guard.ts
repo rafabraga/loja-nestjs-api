@@ -4,7 +4,7 @@ import { GqlExecutionContext } from '@nestjs/graphql';
 import { Reflector } from '@nestjs/core';
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
+export class LoginAuthGuard extends AuthGuard('login') {
 
   constructor(
     @Inject(Reflector) private readonly reflector: Reflector,
@@ -13,11 +13,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   async canActivate(context: ExecutionContext) {
-    const loginEntryPoint = this.reflector.get<boolean>('loginEntryPoint', context.getHandler());
-    const permitAll = this.reflector.get<boolean>('permitAll', context.getHandler());
-    const refreshToken = this.getRequest(context).body.grant_type === 'refresh_token';
+    const grantTypeRefreshToken = this.getRequest(context).body.grant_type === 'refresh_token';
 
-    if ((loginEntryPoint && !refreshToken) || permitAll) {
+    if (grantTypeRefreshToken) {
       return true;
     } else {
       return (await super.canActivate(context)) as boolean;

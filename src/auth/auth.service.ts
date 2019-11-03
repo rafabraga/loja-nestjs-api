@@ -20,15 +20,36 @@ export class AuthService {
   }
 
   async login(user: any): Promise<any> {
-    const payload = { username: user.email, sub: user.id };
     return {
-      access_token: this.jwtService.sign(payload, { expiresIn: '30s' }),
-      refresh_token: this.jwtService.sign(payload, { expiresIn: '60s' }),
+      access_token: this.gerarAccessToken(user),
+      refresh_token: this.gerarRefreshToken(user),
     };
   }
 
-  async refresh(token: any): Promise<any> {
-    const a = this.jwtService.verify(token);
-    console.log(a);
+  async loginSpringBoot(user: any): Promise<any> {
+    return {
+      access_token: this.gerarAccessToken(user),
+      refresh_token: this.gerarRefreshToken(user),
+    };
+  }
+
+  private gerarAccessToken(user: any) {
+    const payload = { username: user.email, sub: user.id, roles: ['ROLE_ADMIN'] };
+    return this.jwtService.sign(payload, {
+      expiresIn: '6000s',
+      header: {
+        type: 'access',
+      },
+    });
+  }
+
+  private gerarRefreshToken(user: any) {
+    const payload = { username: user.email, sub: user.id };
+    return this.jwtService.sign(payload, {
+      expiresIn: `${3600 * 10}s`,
+      header: {
+        type: 'auth',
+      },
+    });
   }
 }

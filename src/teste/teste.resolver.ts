@@ -12,10 +12,8 @@ export class TesteResolver {
         private readonly testeService: TesteService,
     ) {}
 
-    // @UseGuards(JwtAuthGuard)
     @Query(returns => TesteUsuario)
     async testar(@CurrentUser() user): Promise<TesteUsuario> {
-        console.log(user);
         return this.testeService.buscarUnicoUsuario();
     }
 }
